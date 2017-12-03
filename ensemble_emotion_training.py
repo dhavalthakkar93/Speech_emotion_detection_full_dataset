@@ -13,6 +13,8 @@ from sklearn import svm
 from sklearn import model_selection
 from sklearn.ensemble import VotingClassifier
 import pandas as pd
+from matplotlib import pyplot as plt
+from sklearn.model_selection import learning_curve
 
 # Method to extract features from speech using librosa
 
@@ -48,7 +50,7 @@ def parse_audio_files(path):
 
 
 # Get labels and features of audion file of specified path
-tr_features, tr_labels = parse_audio_files('./training_sounds/*.wav')
+tr_features, tr_labels = parse_audio_files('./training_sounds1/*.wav')
 
 print(tr_labels)
 
@@ -75,6 +77,33 @@ ensemble = VotingClassifier(estimators)
 results = model_selection.cross_val_score(ensemble, tr_features.astype(int), tr_labels.astype(str), cv=kfold)
 ensemble.fit(X=tr_features.astype(int), y=tr_labels.astype(str))
 
+# Learning curve plotting
+train_sizes, train_scores, test_scores = learning_curve(ensemble, tr_features, tr_labels, n_jobs=-1, cv=kfold,
+                                                        train_sizes=np.linspace(.1, 1.0, 5), verbose=1)
+train_scores_mean = np.mean(train_scores, axis=1)
+train_scores_std = np.std(train_scores, axis=1)
+test_scores_mean = np.mean(test_scores, axis=1)
+test_scores_std = np.std(test_scores, axis=1)
+
+plt.figure()
+plt.title("Genetic Exported Pipeline Model")
+plt.legend(loc="best")
+plt.xlabel("Training examples")
+plt.ylabel("Score")
+plt.gca().invert_yaxis()
+
+plt.grid()
+
+plt.fill_between(train_sizes, train_scores_mean - train_scores_std, train_scores_mean + train_scores_std, alpha=0.1,
+                 color="r")
+plt.fill_between(train_sizes, test_scores_mean - test_scores_std, test_scores_mean + test_scores_std, alpha=0.1,
+                 color="g")
+line_up = plt.plot(train_sizes, train_scores_mean, 'o-', color="r", label="Training score")
+line_down = plt.plot(train_sizes, test_scores_mean, 'o-', color="g", label="Cross-validation score")
+plt.ylim(-.1, 1.1)
+plt.legend(loc="lower right")
+plt.show()
+
 # File name to store the trained model
 filename = 'Ensemble_Model_protocol2.sav'
 
@@ -82,4 +111,6 @@ filename = 'Ensemble_Model_protocol2.sav'
 pickle.dump(ensemble, open(filename, 'wb'), protocol=2)
 
 print('Model Saved..')
+
+
 
