@@ -86,7 +86,7 @@ test_scores_mean = np.mean(test_scores, axis=1)
 test_scores_std = np.std(test_scores, axis=1)
 
 plt.figure()
-plt.title("Genetic Exported Pipeline Model")
+plt.title("SVM (linear and RBF kernel) Ensemble Model")
 plt.legend(loc="best")
 plt.xlabel("Training examples")
 plt.ylabel("Score")
